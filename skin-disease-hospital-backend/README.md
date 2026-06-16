@@ -19,6 +19,26 @@ Hospital-grade skin disease detection API with patient records, annotated diagno
    docker compose up --build
    ```
 
+## Default Admin
+
+On startup, the API creates or updates one admin account:
+
+```text
+username: hospital_admin
+password: SecurePassword2026!
+```
+
+Override these with environment variables in production:
+
+```text
+DEFAULT_ADMIN_USERNAME
+DEFAULT_ADMIN_PASSWORD
+DEFAULT_ADMIN_EMAIL
+DEFAULT_ADMIN_FULL_NAME
+DEFAULT_ADMIN_DEPARTMENT
+DEFAULT_ADMIN_ENABLED
+```
+
 ## Production Deployment (HuggingFace Spaces + Supabase + Upstash)
 
 Refer to the deployment instructions in the guide.

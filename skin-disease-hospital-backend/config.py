@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480  # 8-hour hospital shift
 
+    DEFAULT_ADMIN_ENABLED: bool = True
+    DEFAULT_ADMIN_USERNAME: str = "hospital_admin"
+    DEFAULT_ADMIN_PASSWORD: str = "SecurePassword2026!"
+    DEFAULT_ADMIN_EMAIL: str = "hospital_admin@dermai.hospital"
+    DEFAULT_ADMIN_FULL_NAME: str = "Hospital Administrator"
+    DEFAULT_ADMIN_DEPARTMENT: str = "IT"
+
     DATA_DIR: str = "/app/data"
     IMAGES_DIR: str = "/app/data/images"
     REPORTS_DIR: str = "/app/data/reports"

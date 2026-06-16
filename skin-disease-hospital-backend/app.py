@@ -5,6 +5,7 @@ import time
 
 from config import get_settings
 from database import create_all_tables
+from services.admin_seed import ensure_default_admin
 from services.model_utils import load_model
 from routers import auth, patients, predictions, feedback, reports, admin
 
@@ -14,6 +15,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_all_tables()
+    await ensure_default_admin()
     load_model()
     print(f"[STARTUP] {settings.APP_NAME} v{settings.APP_VERSION} ready.")
     yield

@@ -20,25 +20,74 @@ interface AuthState {
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
+const AUTH_STORAGE_KEY = "dermai_auth";
 
-function decodeJwt(token: string): { sub: string; role: string } | null {
+interface JwtClaims {
+  sub: string;
+  role: string;
+  exp?: number;
+}
+
+interface StoredAuth {
+  token: string;
+  username: string;
+}
+
+function decodeJwt(token: string): JwtClaims | null {
   try {
-    const payload = token.split(".")[1];
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(atob(payload));
   } catch {
     return null;
   }
 }
 
+function buildUser(token: string, username: string): User | null {
+  const claims = decodeJwt(token);
+  if (!claims?.sub || !claims.role) return null;
+
+  if (claims.exp && claims.exp * 1000 <= Date.now()) {
+    return null;
+  }
+
+  return {
+    id: claims.sub,
+    username,
+    role: (claims.role as "admin" | "doctor") ?? "doctor",
+  };
+}
+
+function readStoredAuth(): { token: string; user: User } | null {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+
+    const stored = JSON.parse(raw) as StoredAuth;
+    const user = buildUser(stored.token, stored.username);
+    if (!user) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return null;
+    }
+
+    setAuthToken(stored.token);
+    return { token: stored.token, user };
+  } catch {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [initialAuth] = useState(() => readStoredAuth());
+  const [token, setToken] = useState<string | null>(initialAuth?.token ?? null);
+  const [user, setUser] = useState<User | null>(initialAuth?.user ?? null);
   const navigate = useNavigate();
 
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     setAuthToken(null);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     navigate("/login");
   }, [navigate]);
 
@@ -50,14 +99,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (username: string, password: string) => {
     const { access_token } = await loginRequest(username, password);
-    const claims = decodeJwt(access_token);
+    const nextUser = buildUser(access_token, username);
+    if (!nextUser) throw new Error("Invalid authentication token");
+
     setToken(access_token);
     setAuthToken(access_token);
-    setUser({
-      id: claims?.sub ?? "",
-      username,
-      role: (claims?.role as "admin" | "doctor") ?? "doctor",
-    });
+    setUser(nextUser);
+    localStorage.setItem(
+      AUTH_STORAGE_KEY,
+      JSON.stringify({ token: access_token, username })
+    );
   }, []);
 
   return (
