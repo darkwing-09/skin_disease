@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { RippleButton } from "@/components/common/RippleButton";
 import { Stethoscope } from "lucide-react";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -23,9 +24,13 @@ export default function LoginPage() {
       await login(username, password);
       toast.success("Login successful.");
       navigate("/dashboard");
-    } catch {
-      setError("Invalid username or password.");
-      toast.error("Invalid username or password.");
+    } catch (err) {
+      const message =
+        isAxiosError(err) && err.response?.status === 401
+          ? "Invalid username or password."
+          : "Login service is unavailable. Please try again in a moment.";
+      setError(message);
+      toast.error(message);
       setLoading(false);
     }
   }
