@@ -121,6 +121,11 @@ export async function fetchPrediction(imageId: string): Promise<PredictionResult
   return normalizePredictionResult(data, imageId, patientInfo);
 }
 
+export async function fetchPredictionsByPatient(patientId: string): Promise<PredictionResult[]> {
+  const { data } = await api.get<any[]>(`/predict/patient/${patientId}`);
+  return data.map((item) => normalizePredictionResult(item));
+}
+
 // Reports require auth headers, so we fetch them as blobs and create object URLs
 // rather than using <img src="..."> directly against a protected endpoint.
 export async function fetchReportImageBlobUrl(imageId: string): Promise<string> {

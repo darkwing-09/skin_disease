@@ -83,23 +83,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(initialAuth?.user ?? null);
   const navigate = useNavigate();
 
-  const logout = useCallback(() => {
+  const clearAuth = useCallback((removeStoredAuth = true) => {
     setToken(null);
     setUser(null);
     setAuthToken(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    if (removeStoredAuth) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
     navigate("/login");
   }, [navigate]);
 
+  const logout = useCallback(() => {
+    clearAuth(true);
+  }, [clearAuth]);
+
   useEffect(() => {
-    const handler = () => logout();
+    const handler = (event: Event) => {
+      const failedToken = (event as CustomEvent<{ token?: string }>).detail?.token;
+      if (failedToken) {
+        try {
+          const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+          const stored = raw ? (JSON.parse(raw) as StoredAuth) : null;
+          if (stored?.token && stored.token !== failedToken) {
+            clearAuth(false);
+            return;
+          }
+        } catch {
+          localStorage.removeItem(AUTH_STORAGE_KEY);
+        }
+      }
+      clearAuth(true);
+    };
     window.addEventListener("auth:unauthorized", handler);
     return () => window.removeEventListener("auth:unauthorized", handler);
-  }, [logout]);
+  }, [clearAuth]);
 
   const login = useCallback(async (username: string, password: string) => {
-    const { access_token } = await loginRequest(username, password);
-    const nextUser = buildUser(access_token, username);
+    const normalizedUsername = username.trim();
+    const { access_token } = await loginRequest(normalizedUsername, password);
+    const nextUser = buildUser(access_token, normalizedUsername);
     if (!nextUser) throw new Error("Invalid authentication token");
 
     setToken(access_token);
@@ -107,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(nextUser);
     localStorage.setItem(
       AUTH_STORAGE_KEY,
-      JSON.stringify({ token: access_token, username })
+      JSON.stringify({ token: access_token, username: normalizedUsername })
     );
   }, []);
 

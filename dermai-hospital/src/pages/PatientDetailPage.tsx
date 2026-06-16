@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPatientByUuid } from "@/api/patients";
-import { fetchPrediction } from "@/api/predictions";
-import { fetchAuditLogs } from "@/api/admin";
-import { useAuth } from "@/hooks/useAuth";
+import { fetchPredictionsByPatient } from "@/api/predictions";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { ShimmerSkeleton } from "@/components/common/ShimmerSkeleton";
 import { SeverityBadge } from "@/components/common/SeverityBadge";
@@ -22,11 +19,9 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { formatConfidence, formatDate, formatDateTime } from "@/lib/utils";
-import type { PredictionResult } from "@/types";
 
 export default function PatientDetailPage() {
   const { patientId } = useParams<{ patientId: string }>();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   // 1. Fetch patient details
@@ -40,78 +35,11 @@ export default function PatientDetailPage() {
     enabled: !!patientId,
   });
 
-  const [scanHistory, setScanHistory] = useState<PredictionResult[]>([]);
-  const [loadingScans, setLoadingScans] = useState(true);
-
-  // 2. Fetch audit logs (only if admin) to find other scan IDs
-  const { data: auditLogs } = useQuery({
-    queryKey: ["audit-logs"],
-    queryFn: () => fetchAuditLogs(),
-    enabled: user?.role === "admin",
+  const { data: scanHistory = [], isLoading: loadingScans } = useQuery({
+    queryKey: ["patient-predictions", patientId],
+    queryFn: () => fetchPredictionsByPatient(patientId || ""),
+    enabled: !!patientId,
   });
-
-  useEffect(() => {
-    if (!patientId) return;
-
-    async function loadScans() {
-      setLoadingScans(true);
-      try {
-        // Retrieve scan image IDs from localStorage (saved in current browser)
-        const localScanIds: string[] = JSON.parse(
-          localStorage.getItem(`scans_${patientId}`) || "[]"
-        );
-
-        // Retrieve scan image IDs from audit logs (if admin)
-        const auditScanIds: string[] = [];
-        if (auditLogs) {
-          auditLogs.forEach((log) => {
-            if (
-              log.action === "PREDICTION_CREATED" &&
-              log.payload &&
-              log.payload.patient_id === patientId &&
-              log.payload.image_id
-            ) {
-              auditScanIds.push(log.payload.image_id);
-            }
-          });
-        }
-
-        // Merge and deduplicate
-        const allScanIds = Array.from(
-          new Set([...localScanIds, ...auditScanIds])
-        );
-
-        // Fetch prediction details for each ID
-        const predictions = await Promise.all(
-          allScanIds.map(async (id) => {
-            try {
-              return await fetchPrediction(id);
-            } catch {
-              return null;
-            }
-          })
-        );
-
-        // Filter nulls and sort by date descending
-        const validPredictions = predictions.filter(
-          (p): p is PredictionResult => p !== null
-        );
-        validPredictions.sort(
-          (a, b) =>
-            new Date(b.submitted_at).getTime() -
-            new Date(a.submitted_at).getTime()
-        );
-
-        setScanHistory(validPredictions);
-      } catch (err) {
-        console.error("Failed to load scan history:", err);
-      } finally {
-        setLoadingScans(false);
-      }
-    }
-
-    loadScans();
-  }, [patientId, auditLogs]);
 
   if (loadingPatient) {
     return (

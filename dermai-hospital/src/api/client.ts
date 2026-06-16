@@ -23,7 +23,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      const authorization = error.config?.headers?.Authorization;
+      const failedToken =
+        typeof authorization === "string" && authorization.startsWith("Bearer ")
+          ? authorization.slice("Bearer ".length)
+          : undefined;
+      window.dispatchEvent(
+        new CustomEvent("auth:unauthorized", { detail: { token: failedToken } })
+      );
     }
     return Promise.reject(error);
   }
