@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-base text-text-primary font-inter antialiased;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, h4 {
+    @apply font-sora font-bold text-text-primary;
+  }
+  ::selection {
+    background: rgba(14, 165, 233, 0.3);
+  }
+  /* Visible, accessible focus rings everywhere */
+  :focus-visible {
+    outline: 2px solid #0ea5e9;
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      #16213a 25%,
+      #1f2a44 37%,
+      #16213a 63%
+    );
+    background-size: 200% 100%;
+  }
+  .clinical-card {
+    @apply bg-surface border border-border-subtle rounded-card transition-all duration-200;
+  }
+  .clinical-card:hover {
+    @apply border-primary/40 -translate-y-0.5;
+    box-shadow: 0 8px 30px rgba(14, 165, 233, 0.12);
+  }
+}

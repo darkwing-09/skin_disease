@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "7860:7860"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://dermuser:dermpass@db:5432/dermaidb
+      - DATABASE_SYNC_URL=postgresql://dermuser:dermpass@db:5432/dermaidb
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - SECRET_KEY=REPLACE_WITH_STRONG_256BIT_SECRET
+      - API_BASE_URL=http://localhost:7860
+      - ALLOWED_ORIGINS=["*"]
+      - PYTHONUNBUFFERED=1
+      - MIN_FEEDBACK_SAMPLES_FOR_RETRAIN=1
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: celery -A services.retraining_worker.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_SYNC_URL=postgresql://dermuser:dermpass@db:5432/dermaidb
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+      - MIN_FEEDBACK_SAMPLES_FOR_RETRAIN=1
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  beat:
+    build: .
+    command: celery -A services.retraining_worker.celery_app beat --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dermuser
+      POSTGRES_PASSWORD: dermpass
+      POSTGRES_DB: dermaidb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5439:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "63799:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

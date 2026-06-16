@@ -1,0 +1,17 @@
+cat > .gitignore << 'EOF'
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.egg-info/
+.DS_Store
+test_report.png
+test_report.pdf
+test_skin.jpg
+test_skin_2.jpg
+*.png
+*.pdf
+*.jpg
+*.jpeg
+data/reports/
+EOF
