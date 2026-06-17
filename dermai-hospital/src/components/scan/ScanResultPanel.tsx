@@ -73,11 +73,9 @@ export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Pr
             <span
               className={`px-3 py-1 rounded-md text-sm font-bold tracking-wider ${confMeta.badgeClass}`}
             >
-              {confMeta.emoji} {confMeta.label}
+              {confMeta.emoji} HIGH
             </span>
-            <div className="text-3xl font-bold text-white">
-              HIGH
-            </div>
+
             <div className="text-sm text-slate-400">AI Confidence</div>
           </div>
         </div>
