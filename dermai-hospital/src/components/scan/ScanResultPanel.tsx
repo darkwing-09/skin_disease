@@ -38,7 +38,7 @@ export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Pr
       <div className="clinical-card p-6 flex flex-col md:flex-row gap-6 items-start justify-between">
         <div className="space-y-4 flex-1">
           <div className="flex items-center gap-3 flex-wrap">
-            Severity Assessment: <SeverityBadge severity={result.severity} />
+             <SeverityBadge severity=Severity:{result.severity} />
             <span className="font-mono text-xs text-text-tertiary px-2 py-1 bg-base border border-border-subtle rounded">
               ICD-10: {result.icd_code}
             </span>
