@@ -13,7 +13,7 @@ export function getConfidenceLevel(confidence: number): ConfidenceMeta {
       level:      "HIGH",
       label:      "HIGH",
       emoji:      "🟢",
-      badgeClass: "bg-red-600 text-white",
+      badgeClass: "bg-blue-600 text-white",
     };
   } else if (confidence >= 15) {
     return {
