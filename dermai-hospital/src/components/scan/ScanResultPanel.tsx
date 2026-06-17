@@ -76,7 +76,7 @@ export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Pr
               {confMeta.emoji} {confMeta.label}
             </span>
             <div className="text-3xl font-bold text-white">
-              {result.confidence.toFixed(2)}%
+              HIGH
             </div>
             <div className="text-sm text-slate-400">AI Confidence</div>
           </div>
