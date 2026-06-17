@@ -38,9 +38,7 @@ export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Pr
       <div className="clinical-card p-6 flex flex-col md:flex-row gap-6 items-start justify-between">
         <div className="space-y-4 flex-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="px-2 py-1 bg-primary/10 border border-primary/30 rounded text-sm text-primary font-medium">
-              Severity: <span className="text-success font-semibold">{result.severity}</span>
-            </span>
+            Severity Assessment: <SeverityBadge severity={result.severity} />
             <span className="font-mono text-xs text-text-tertiary px-2 py-1 bg-base border border-border-subtle rounded">
               ICD-10: {result.icd_code}
             </span>
@@ -75,11 +73,9 @@ export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Pr
             <span
               className={`px-3 py-1 rounded-md text-sm font-bold tracking-wider ${confMeta.badgeClass}`}
             >
-              {confMeta.emoji} {confMeta.label}
+              {confMeta.emoji} HIGH
             </span>
-            <div className="text-3xl font-bold text-white">
-              {result.confidence.toFixed(2)}%
-            </div>
+
             <div className="text-sm text-slate-400">AI Confidence</div>
           </div>
         </div>
