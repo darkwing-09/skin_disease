@@ -13,21 +13,14 @@ export const DISEASE_CLASSES = [
 
 export const SEVERITY_STYLES: Record<
   string,
-  { bg: string; text: string; border: string; pulse?: boolean }
+  { bg: string; border: string; text: string; pulse: boolean }
 > = {
-  Low: { bg: "bg-success/15", text: "text-success", border: "border-success/30" },
-  Moderate: { bg: "bg-warning/15", text: "text-warning", border: "border-warning/30" },
-  High: {
-    bg: "bg-danger-high/15",
-    text: "text-danger-high",
-    border: "border-danger-high/30",
-  },
-  Critical: {
-    bg: "bg-danger-critical/15",
-    text: "text-danger-critical",
-    border: "border-danger-critical/40",
-    pulse: true,
-  },
+  Critical: { bg: "bg-red-600",     border: "border-red-600",     text: "text-white", pulse: true  },
+  Severe:   { bg: "bg-orange-500",  border: "border-orange-500",  text: "text-white", pulse: false },
+  Moderate: { bg: "bg-amber-500",   border: "border-amber-500",   text: "text-white", pulse: false },
+  Mild:     { bg: "bg-emerald-500", border: "border-emerald-500", text: "text-white", pulse: false },
+  High:     { bg: "bg-orange-500",  border: "border-orange-500",  text: "text-white", pulse: false },
+  Low:      { bg: "bg-emerald-500", border: "border-emerald-500", text: "text-white", pulse: false },
 };
 
 export const CLASS_METADATA: Record<
@@ -95,4 +88,3 @@ export const CLASS_METADATA: Record<
     icd_code: "B07.9",
   },
 };
-

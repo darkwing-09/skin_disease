@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from sqlalchemy import or_, select
+from sqlalchemy import select
 
 from config import get_settings
 from database import AsyncSessionLocal
@@ -16,16 +16,14 @@ async def ensure_default_admin() -> None:
 
     async with AsyncSessionLocal() as db:
         result = await db.execute(
-            select(User).where(
-                or_(
-                    User.username == settings.DEFAULT_ADMIN_USERNAME,
-                    User.email == settings.DEFAULT_ADMIN_EMAIL,
-                )
-            )
+            select(User).where(User.username == settings.DEFAULT_ADMIN_USERNAME)
         )
         admin = result.scalar_one_or_none()
-        password_hash = pwd_ctx.hash(settings.DEFAULT_ADMIN_PASSWORD)
-
+        if not admin:
+            result = await db.execute(
+                select(User).where(User.email == settings.DEFAULT_ADMIN_EMAIL)
+            )
+            admin = result.scalar_one_or_none()
         if admin:
             admin.username = settings.DEFAULT_ADMIN_USERNAME
             admin.email = settings.DEFAULT_ADMIN_EMAIL
@@ -33,13 +31,21 @@ async def ensure_default_admin() -> None:
             admin.department = settings.DEFAULT_ADMIN_DEPARTMENT
             admin.role = "admin"
             admin.is_active = True
-            admin.password_hash = password_hash
+            try:
+                password_is_current = pwd_ctx.verify(
+                    settings.DEFAULT_ADMIN_PASSWORD,
+                    admin.password_hash,
+                )
+            except Exception:
+                password_is_current = False
+            if not password_is_current:
+                admin.password_hash = pwd_ctx.hash(settings.DEFAULT_ADMIN_PASSWORD)
             action = "updated"
         else:
             admin = User(
                 username=settings.DEFAULT_ADMIN_USERNAME,
                 email=settings.DEFAULT_ADMIN_EMAIL,
-                password_hash=password_hash,
+                password_hash=pwd_ctx.hash(settings.DEFAULT_ADMIN_PASSWORD),
                 role="admin",
                 full_name=settings.DEFAULT_ADMIN_FULL_NAME,
                 department=settings.DEFAULT_ADMIN_DEPARTMENT,

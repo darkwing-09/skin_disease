@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
 import type { PredictionClass } from "@/types";
-import { formatPercentValue, normalizePercent } from "@/lib/utils";
+import { SeverityBadge } from "@/components/common/SeverityBadge";
+import { CLASS_SEVERITY } from "@/utils/classSeverity";
 
 interface Props {
   classes: PredictionClass[];
@@ -16,43 +16,23 @@ export function ProbabilityBreakdown({ classes }: Props) {
         Full AI Probability Analysis
       </h3>
 
-      <div className="space-y-3.5">
+      <div className="space-y-1">
         {sorted.map((item, index) => {
-          const rank = index + 1;
-          const pct = normalizePercent(item.confidence);
-
-          // Bar color logic: rank 1 = sky-500 (primary), rank 2 = violet (indigo-500), rest = slate/border-strong
-          const barColor =
-            rank === 1
-              ? "bg-primary"
-              : rank === 2
-              ? "bg-indigo-500"
-              : "bg-border-strong";
+          const rank = item.rank || index + 1;
+          const sev = CLASS_SEVERITY[item.label] ?? "Mild";
 
           return (
-            <div key={item.label} className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-text-tertiary w-4">
-                    #{rank}
-                  </span>
-                  <span className="font-medium text-text-primary">
-                    {item.label}
-                  </span>
-                </div>
-                <span className="font-mono font-semibold text-text-secondary">
-                  {formatPercentValue(pct)}
+            <div
+              key={item.label}
+              className="flex items-center justify-between gap-3 py-2 border-b border-slate-700 last:border-b-0"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-slate-400 text-sm w-6 shrink-0">
+                  #{rank}
                 </span>
+                <span className="text-white text-sm truncate">{item.label}</span>
               </div>
-
-              <div className="h-2 w-full bg-base rounded-full overflow-hidden border border-border-subtle/50">
-                <motion.div
-                  initial={{ width: "0%" }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.05 }}
-                  className={`h-full rounded-full ${barColor}`}
-                />
-              </div>
+              <SeverityBadge severity={sev} />
             </div>
           );
         })}

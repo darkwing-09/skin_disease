@@ -104,6 +104,13 @@ CLASS_METADATA = {
     },
 }
 
+SEVERITY_REMAP = {
+    "Critical": "Critical",
+    "High":     "Severe",
+    "Moderate": "Moderate",
+    "Low":      "Mild",
+}
+
 _MODEL = None
 _MODEL_VERSION = "v1"
 
@@ -160,7 +167,7 @@ def run_inference(image_bytes: bytes) -> dict:
         "top_prediction":     top_label,
         "confidence":         round(top_conf * 100, 2),
         "description":        meta["description"],
-        "severity":           meta["severity"],
+        "severity":           SEVERITY_REMAP.get(meta["severity"], meta["severity"]),
         "recommended_action": meta["action"],
         "icd_code":           meta["icd_code"],
         "all_classes":        all_classes,

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import or_, select
+from sqlalchemy.orm import selectinload
 import uuid, os, aiofiles
 
 from database import get_db
@@ -16,6 +17,38 @@ from config import get_settings
 
 settings = get_settings()
 router = APIRouter(prefix="/predict", tags=["Predictions"])
+
+
+def serialize_prediction(pred: Prediction, patient: Patient | None = None) -> dict:
+    patient_info = patient or pred.patient
+    patient_dict = None
+    if patient_info:
+        patient_dict = {
+            "full_name": patient_info.full_name,
+            "patient_id": patient_info.patient_id,
+            "date_of_birth": str(patient_info.date_of_birth) if patient_info.date_of_birth else "N/A",
+            "gender": patient_info.gender or "N/A",
+            "blood_group": patient_info.blood_group or "N/A",
+        }
+
+    base = f"{settings.API_BASE_URL}/reports/{pred.image_id}"
+    return {
+        "id": str(pred.id),
+        "image_id": pred.image_id,
+        "patient_id": str(pred.patient_id),
+        "patient": patient_dict,
+        "submitted_by": str(pred.submitted_by),
+        "top_prediction": pred.top_prediction,
+        "confidence": pred.confidence,
+        "all_probabilities": pred.all_probabilities,
+        "model_version": pred.model_version,
+        "status": pred.status,
+        "doctor_notes": pred.doctor_notes,
+        "created_at": pred.created_at,
+        "submitted_at": pred.created_at,
+        "report_url": f"{base}/image",
+        "report_pdf_url": f"{base}/pdf",
+    }
 
 
 @router.post("/", status_code=201)
@@ -111,11 +144,40 @@ async def predict_disease(
     }
 
 
+@router.get("/patient/{patient_id}")
+async def list_patient_predictions(
+    patient_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    patient_filters = [Patient.patient_id == patient_id]
+    try:
+        patient_filters.append(Patient.id == uuid.UUID(patient_id))
+    except ValueError:
+        pass
+
+    patient_result = await db.execute(select(Patient).where(or_(*patient_filters)))
+    patient = patient_result.scalar_one_or_none()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+    result = await db.execute(
+        select(Prediction)
+        .where(Prediction.patient_id == patient.id)
+        .order_by(Prediction.created_at.desc())
+    )
+    return [serialize_prediction(pred, patient) for pred in result.scalars().all()]
+
+
 @router.get("/{image_id}")
 async def get_prediction(image_id: str, db: AsyncSession = Depends(get_db),
                          current_user: User = Depends(get_current_user)):
-    result = await db.execute(select(Prediction).where(Prediction.image_id == image_id))
+    result = await db.execute(
+        select(Prediction)
+        .options(selectinload(Prediction.patient))
+        .where(Prediction.image_id == image_id)
+    )
     pred = result.scalar_one_or_none()
     if not pred:
         raise HTTPException(status_code=404, detail="Prediction not found")
-    return pred
+    return serialize_prediction(pred)

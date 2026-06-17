@@ -48,11 +48,25 @@ C_WHITE    = (241, 245, 249)
 C_MUTED    = (148, 163, 184)
 C_HEADER   = (7,   89, 133)
 
+SEVERITY_REMAP = {
+    "Critical": "Critical",
+    "High":     "Severe",
+    "Moderate": "Moderate",
+    "Low":      "Mild",
+}
+
+SEVERITY_EMOJI = {
+    "Critical": "🔴",
+    "Severe":   "🟠",
+    "Moderate": "🟡",
+    "Mild":     "🟢",
+}
+
 SEVERITY_COLORS = {
-    "Low":      C_GREEN,
-    "Moderate": C_YELLOW,
-    "High":     (249, 115, 22),
     "Critical": C_RED,
+    "Severe":   (249, 115, 22),
+    "Moderate": C_YELLOW,
+    "Mild":     C_GREEN,
 }
 
 CANVAS_WIDTH = 900
@@ -132,7 +146,8 @@ def generate_annotated_image(
     y += PATIENT_H
 
     # Diagnosis
-    sev = prediction.get("severity", "Low")
+    sev_raw = prediction.get("severity", "Low")
+    sev = SEVERITY_REMAP.get(sev_raw, sev_raw)
     sev_color = SEVERITY_COLORS.get(sev, C_GREEN)
     _rect(draw, 0, y, CANVAS_WIDTH, y + DIAGNOSIS_H, C_BG_DARK)
     _rect(draw, 20, y + 10, 140, y + 40, sev_color, radius=6)
@@ -146,18 +161,26 @@ def generate_annotated_image(
               f"Description: {prediction.get('description', '')[:100]}", font=f_small, fill=C_MUTED)
     y += DIAGNOSIS_H
 
-    # Probability chart
+    # ── SEVERITY RANKING (replaces probability bar chart) ─────────────────────
     _rect(draw, 0, y, CANVAS_WIDTH, y + CHART_H, C_BG_CARD)
-    draw.text((20, y + 10), "TOP 5 PROBABILITY BREAKDOWN", font=f_label, fill=C_BLUE)
-    bar_colors = [C_BLUE, (124, 58, 237), (249, 115, 22), C_MUTED, C_MUTED]
-    bar_max_w = CANVAS_WIDTH - 340
-    for i, cls in enumerate(prediction.get("all_classes", [])[:5]):
+    draw.text((20, y + 10), "TOP 5 CLINICAL ASSESSMENT", font=f_label, fill=C_BLUE)
+
+    top5 = prediction.get("all_classes", [])[:5]
+
+    for i, cls in enumerate(top5):
         by = y + 40 + i * 26
+
+        from services.model_utils import CLASS_METADATA, SEVERITY_REMAP as _SREMAP
+        meta_sev_raw = CLASS_METADATA.get(cls["label"], {}).get("severity", "Low")
+        meta_sev = _SREMAP.get(meta_sev_raw, meta_sev_raw)
+        sev_color_item = SEVERITY_COLORS.get(meta_sev, C_MUTED)
+        emoji = SEVERITY_EMOJI.get(meta_sev, "")
+
         draw.text((20, by), f"{i+1}.", font=f_small, fill=C_MUTED)
-        draw.text((40, by), cls["label"][:30], font=f_small, fill=C_WHITE)
-        bw = int((cls["confidence"] / 100) * bar_max_w)
-        _rect(draw, 280, by + 2, 280 + bw, by + 16, bar_colors[i], radius=3)
-        draw.text((290 + bw, by), f"{cls['confidence']:.1f}%", font=f_small, fill=C_MUTED)
+        draw.text((40, by), cls["label"][:36], font=f_small, fill=C_WHITE)
+        badge_text = f"{emoji} {meta_sev}"
+        draw.text((CANVAS_WIDTH - 160, by), badge_text, font=f_label, fill=sev_color_item)
+
     y += CHART_H
 
     # Footer
@@ -238,6 +261,36 @@ def generate_pdf_report(
             img_h = max_h
             avail_w = img_h / aspect
         story.append(RLImage(annotated_image_path, width=avail_w, height=img_h))
+    story.append(Spacer(1, 4*mm))
+
+    from services.model_utils import CLASS_METADATA, SEVERITY_REMAP as _SREMAP
+
+    SEVERITY_EMOJI_PDF = {
+        "Critical": "Critical",
+        "Severe":   "Severe",
+        "Moderate": "Moderate",
+        "Mild":     "Mild",
+    }
+
+    top5_pdf = prediction.get("all_classes", [])[:5]
+    prob_data = [["#", "Disease", "Severity"]]
+    for i, cls in enumerate(top5_pdf):
+        meta_sev_raw = CLASS_METADATA.get(cls["label"], {}).get("severity", "Low")
+        meta_sev = _SREMAP.get(meta_sev_raw, meta_sev_raw)
+        prob_data.append([str(i + 1), cls["label"], meta_sev])
+
+    prob_table = Table(prob_data, colWidths=[10*mm, 110*mm, 40*mm])
+    prob_table.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, 0),  colors.HexColor("#0F172A")),
+        ("TEXTCOLOR",     (0, 0), (-1, 0),  colors.HexColor("#0EA5E9")),
+        ("BACKGROUND",    (0, 1), (-1, -1), colors.HexColor("#1E293B")),
+        ("TEXTCOLOR",     (0, 1), (-1, -1), colors.HexColor("#F1F5F9")),
+        ("FONTSIZE",      (0, 0), (-1, -1), 9),
+        ("GRID",          (0, 0), (-1, -1), 0.5, colors.HexColor("#334155")),
+        ("ROWBACKGROUNDS",(0, 1), (-1, -1),
+         [colors.HexColor("#1E293B"), colors.HexColor("#0F172A")]),
+    ]))
+    story.append(prob_table)
     story.append(Spacer(1, 4*mm))
 
     action_style = ParagraphStyle("Action", parent=styles["Normal"], fontSize=9,

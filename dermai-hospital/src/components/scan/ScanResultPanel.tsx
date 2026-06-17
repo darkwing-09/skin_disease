@@ -2,12 +2,12 @@ import { useState } from "react";
 import { FileDown, Image as ImageIcon, AlertTriangle, Loader2 } from "lucide-react";
 import type { PredictionResult } from "@/types";
 import { SeverityBadge } from "@/components/common/SeverityBadge";
-import { ConfidenceGauge } from "@/components/common/ConfidenceGauge";
 import { ProbabilityBreakdown } from "@/components/scan/ProbabilityBreakdown";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { useReportImage, useReportPdf } from "@/hooks/usePrediction";
 import { ImageReportModal } from "@/components/common/ImageReportModal";
 import { RippleButton } from "@/components/common/RippleButton";
+import { getConfidenceLevel } from "@/utils/confidence";
 
 interface Props {
   result: PredictionResult;
@@ -16,6 +16,7 @@ interface Props {
 
 export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
+  const confMeta = getConfidenceLevel(result.confidence);
 
   // Fetch report images and PDFs as protected blob URLs
   const { data: imageBlobUrl, isLoading: loadingImage } = useReportImage(result.image_id);
@@ -68,10 +69,17 @@ export function ScanResultPanel({ result, initialFeedbackSubmitted = false }: Pr
         </div>
 
         <div className="w-full md:w-auto flex flex-col items-center justify-center p-4 bg-base/30 rounded-card border border-border-subtle/40 self-stretch md:self-auto min-w-[160px]">
-          <ConfidenceGauge value={result.confidence} />
-          <p className="text-xs text-text-tertiary mt-2 text-center font-medium">
-            AI Confidence
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <span
+              className={`px-3 py-1 rounded-md text-sm font-bold tracking-wider ${confMeta.badgeClass}`}
+            >
+              {confMeta.emoji} {confMeta.label}
+            </span>
+            <div className="text-3xl font-bold text-white">
+              {result.confidence.toFixed(2)}%
+            </div>
+            <div className="text-sm text-slate-400">AI Confidence</div>
+          </div>
         </div>
       </div>
 

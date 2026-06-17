@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { SEVERITY_STYLES } from "@/lib/constants";
-import type { Severity } from "@/types";
 
-export function SeverityBadge({ severity }: { severity: Severity }) {
-  const style = SEVERITY_STYLES[severity] ?? SEVERITY_STYLES.Low;
+export function SeverityBadge({ severity }: { severity: string }) {
+  const displaySeverity =
+    severity === "High" ? "Severe" : severity === "Low" ? "Mild" : severity;
+  const style = SEVERITY_STYLES[displaySeverity] ?? SEVERITY_STYLES[severity] ?? SEVERITY_STYLES.Low;
 
   return (
     <motion.span
@@ -21,7 +22,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
         )}`}
         aria-hidden="true"
       />
-      {severity}
+      {displaySeverity}
     </motion.span>
   );
 }
