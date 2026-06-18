@@ -147,25 +147,33 @@ export default function AdminPage() {
                   data={chartData}
                   margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                  <XAxis dataKey="name" stroke="#64748B" fontSize={11} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border-subtle))"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    stroke="hsl(var(--text-tertiary))"
+                    fontSize={11}
+                  />
                   <YAxis
-                    stroke="#64748B"
+                    stroke="hsl(var(--text-tertiary))"
                     fontSize={11}
                     domain={["auto", "auto"]}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#0F172A",
-                      borderColor: "#334155",
+                      backgroundColor: "hsl(var(--surface))",
+                      borderColor: "hsl(var(--border-strong))",
                       borderRadius: "6px",
-                      color: "#F8FAFC",
+                      color: "hsl(var(--text-primary))",
                     }}
+                    labelStyle={{ color: "hsl(var(--text-primary))" }}
                   />
                   <Line
                     type="monotone"
                     dataKey="Accuracy"
-                    stroke="#0EA5E9"
+                    stroke="hsl(var(--primary))"
                     strokeWidth={2}
                     activeDot={{ r: 6 }}
                   />

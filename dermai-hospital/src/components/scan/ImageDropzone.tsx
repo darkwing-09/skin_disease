@@ -112,7 +112,7 @@ export function ImageDropzone({ file, onSelectFile }: Props) {
               fill="none"
               rx="10"
               ry="10"
-              stroke="#0EA5E9"
+              stroke="hsl(var(--primary))"
               strokeWidth="2"
               strokeDasharray="8, 6"
               className={`opacity-0 transition-opacity duration-200 ${

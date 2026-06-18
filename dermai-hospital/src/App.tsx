@@ -3,8 +3,11 @@ import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { AppShell } from "@/components/layout/AppShell";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import LoginPage from "@/pages/LoginPage";
 import DashboardPage from "@/pages/DashboardPage";
 import PatientsPage from "@/pages/PatientsPage";
@@ -94,15 +97,23 @@ function AppRoutes() {
   );
 }
 
+function ThemeAwareToaster() {
+  const { resolvedTheme } = useTheme();
+  return <Toaster theme={resolvedTheme} position="top-right" richColors />;
+}
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <AppRoutes />
-          <Toaster theme="dark" position="top-right" richColors />
-        </QueryClientProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeToggle className="fixed right-4 top-4 z-50" />
+            <AppRoutes />
+            <ThemeAwareToaster />
+          </QueryClientProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

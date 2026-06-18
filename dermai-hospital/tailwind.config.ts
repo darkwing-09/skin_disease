@@ -6,23 +6,53 @@ export default {
   theme: {
     extend: {
       colors: {
-        base: "#0B1120",
-        surface: "#121A2C",
-        "surface-hover": "#16213A",
-        "border-subtle": "#1F2A44",
-        "border-strong": "#2C3B5C",
+        base: "hsl(var(--base) / <alpha-value>)",
+        surface: "hsl(var(--surface) / <alpha-value>)",
+        "surface-hover": "hsl(var(--surface-hover) / <alpha-value>)",
+        "border-subtle": "hsl(var(--border-subtle) / <alpha-value>)",
+        "border-strong": "hsl(var(--border-strong) / <alpha-value>)",
         primary: {
-          DEFAULT: "#0EA5E9",
-          soft: "rgba(14,165,233,0.12)",
+          DEFAULT: "hsl(var(--primary) / <alpha-value>)",
+          foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
+          soft: "hsl(var(--primary-soft) / <alpha-value>)",
         },
-        success: "#10B981",
-        warning: "#F59E0B",
-        "danger-high": "#F97316",
-        "danger-critical": "#DC2626",
+        success: "hsl(var(--success) / <alpha-value>)",
+        warning: "hsl(var(--warning) / <alpha-value>)",
+        "danger-high": "hsl(var(--danger-high) / <alpha-value>)",
+        "danger-critical": "hsl(var(--danger-critical) / <alpha-value>)",
         text: {
-          primary: "#E8EDF7",
-          secondary: "#94A3B8",
-          tertiary: "#5B6B8C",
+          primary: "hsl(var(--text-primary) / <alpha-value>)",
+          secondary: "hsl(var(--text-secondary) / <alpha-value>)",
+          tertiary: "hsl(var(--text-tertiary) / <alpha-value>)",
+        },
+        border: "hsl(var(--border) / <alpha-value>)",
+        input: "hsl(var(--input) / <alpha-value>)",
+        ring: "hsl(var(--ring) / <alpha-value>)",
+        background: "hsl(var(--background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground) / <alpha-value>)",
+        card: {
+          DEFAULT: "hsl(var(--card) / <alpha-value>)",
+          foreground: "hsl(var(--card-foreground) / <alpha-value>)",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover) / <alpha-value>)",
+          foreground: "hsl(var(--popover-foreground) / <alpha-value>)",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
+          foreground: "hsl(var(--secondary-foreground) / <alpha-value>)",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted) / <alpha-value>)",
+          foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent) / <alpha-value>)",
+          foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
+          foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
         },
       },
       fontFamily: {

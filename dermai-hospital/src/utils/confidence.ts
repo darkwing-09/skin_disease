@@ -8,14 +8,14 @@ export interface ConfidenceMeta {
 }
 
 export function getConfidenceLevel(confidence: number): ConfidenceMeta {
-  if (confidence >= 20) {
+  if (confidence >= 80) {
     return {
       level:      "HIGH",
       label:      "HIGH",
-      emoji:      "🟢",
-      badgeClass: "bg-blue-600 text-white",
+      emoji:      "🔴",
+      badgeClass: "bg-red-600 text-white",
     };
-  } else if (confidence >= 15) {
+  } else if (confidence >= 60) {
     return {
       level:      "MEDIUM",
       label:      "MEDIUM",
@@ -26,7 +26,7 @@ export function getConfidenceLevel(confidence: number): ConfidenceMeta {
     return {
       level:      "LOW",
       label:      "LOW",
-      emoji:      "🔴",
+      emoji:      "⚪",
       badgeClass: "bg-slate-500 text-white",
     };
   }

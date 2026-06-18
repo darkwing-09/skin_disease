@@ -41,9 +41,9 @@ export default function LoginPage() {
         className="absolute inset-0 -z-10"
         animate={{
           background: [
-            "radial-gradient(circle at 30% 20%, rgba(14,165,233,0.08), transparent 50%)",
-            "radial-gradient(circle at 70% 60%, rgba(14,165,233,0.08), transparent 50%)",
-            "radial-gradient(circle at 30% 20%, rgba(14,165,233,0.08), transparent 50%)",
+            "radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.08), transparent 50%)",
+            "radial-gradient(circle at 70% 60%, hsl(var(--primary) / 0.08), transparent 50%)",
+            "radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.08), transparent 50%)",
           ],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}

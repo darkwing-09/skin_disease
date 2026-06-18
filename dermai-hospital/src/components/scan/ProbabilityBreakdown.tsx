@@ -24,13 +24,15 @@ export function ProbabilityBreakdown({ classes }: Props) {
           return (
             <div
               key={item.label}
-              className="flex items-center justify-between gap-3 py-2 border-b border-slate-700 last:border-b-0"
+              className="flex items-center justify-between gap-3 py-2 border-b border-border-subtle/70 last:border-b-0"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-slate-400 text-sm w-6 shrink-0">
+                <span className="text-text-tertiary text-sm w-6 shrink-0">
                   #{rank}
                 </span>
-                <span className="text-white text-sm truncate">{item.label}</span>
+                <span className="text-text-primary text-sm truncate">
+                  {item.label}
+                </span>
               </div>
               <SeverityBadge severity={sev} />
             </div>

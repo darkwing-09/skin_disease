@@ -3,6 +3,86 @@
 @tailwind utilities;
 
 @layer base {
+  :root,
+  html[data-theme="light"] {
+    --base: 210 40% 98%;
+    --surface: 0 0% 100%;
+    --surface-hover: 199 90% 96%;
+    --border-subtle: 214 32% 91%;
+    --border-strong: 213 27% 84%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 199 89% 48%;
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --danger-high: 24 95% 53%;
+    --danger-critical: 0 72% 51%;
+    --text-primary: 222 47% 11%;
+    --text-secondary: 215 16% 47%;
+    --text-tertiary: 215 14% 58%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 36% 94%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 199 89% 94%;
+    --accent-foreground: 199 89% 27%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 88%;
+    --ring: 199 89% 48%;
+  }
+
+  html[data-theme="dark"] {
+    --base: 222 49% 8%;
+    --surface: 222 42% 12%;
+    --surface-hover: 219 42% 16%;
+    --border-subtle: 222 37% 19%;
+    --border-strong: 221 35% 27%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 199 89% 48%;
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --danger-high: 24 95% 53%;
+    --danger-critical: 0 72% 51%;
+    --text-primary: 218 41% 94%;
+    --text-secondary: 215 20% 65%;
+    --text-tertiary: 221 21% 45%;
+    --background: 222 49% 8%;
+    --foreground: 218 41% 94%;
+    --card: 222 42% 12%;
+    --card-foreground: 218 41% 94%;
+    --popover: 222 42% 12%;
+    --popover-foreground: 218 41% 94%;
+    --secondary: 219 42% 16%;
+    --secondary-foreground: 218 41% 94%;
+    --muted: 219 42% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 219 42% 16%;
+    --accent-foreground: 218 41% 94%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 37% 19%;
+    --input: 221 35% 27%;
+    --ring: 199 89% 48%;
+  }
+
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition-property: background-color, border-color, color, fill, stroke,
+      box-shadow;
+    transition-duration: 180ms;
+    transition-timing-function: ease;
+  }
+
   html {
     @apply scroll-smooth;
   }
@@ -15,11 +95,11 @@
     @apply font-sora font-bold text-text-primary;
   }
   ::selection {
-    background: rgba(14, 165, 233, 0.3);
+    background: hsl(var(--primary) / 0.3);
   }
   /* Visible, accessible focus rings everywhere */
   :focus-visible {
-    outline: 2px solid #0ea5e9;
+    outline: 2px solid hsl(var(--primary));
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -35,9 +115,9 @@
   .shimmer-bg {
     background: linear-gradient(
       90deg,
-      #16213a 25%,
-      #1f2a44 37%,
-      #16213a 63%
+      hsl(var(--surface-hover)) 25%,
+      hsl(var(--border-subtle)) 37%,
+      hsl(var(--surface-hover)) 63%
     );
     background-size: 200% 100%;
   }
@@ -46,6 +126,6 @@
   }
   .clinical-card:hover {
     @apply border-primary/40 -translate-y-0.5;
-    box-shadow: 0 8px 30px rgba(14, 165, 233, 0.12);
+    box-shadow: 0 8px 30px hsl(var(--primary) / 0.12);
   }
 }

@@ -165,7 +165,8 @@ def generate_annotated_image(
     _rect(draw, 0, y, CANVAS_WIDTH, y + CHART_H, C_BG_CARD)
     draw.text((20, y + 10), "TOP 5 CLINICAL ASSESSMENT", font=f_label, fill=C_BLUE)
 
-    top5 = prediction.get("all_classes", [])[:5]
+    from services.model_utils import sort_classes_by_severity
+    top5 = sort_classes_by_severity(prediction.get("all_classes", []))[:5]
 
     for i, cls in enumerate(top5):
         by = y + 40 + i * 26
@@ -263,7 +264,7 @@ def generate_pdf_report(
         story.append(RLImage(annotated_image_path, width=avail_w, height=img_h))
     story.append(Spacer(1, 4*mm))
 
-    from services.model_utils import CLASS_METADATA, SEVERITY_REMAP as _SREMAP
+    from services.model_utils import CLASS_METADATA, SEVERITY_REMAP as _SREMAP, sort_classes_by_severity
 
     SEVERITY_EMOJI_PDF = {
         "Critical": "Critical",
@@ -272,7 +273,7 @@ def generate_pdf_report(
         "Mild":     "Mild",
     }
 
-    top5_pdf = prediction.get("all_classes", [])[:5]
+    top5_pdf = sort_classes_by_severity(prediction.get("all_classes", []))[:5]
     prob_data = [["#", "Disease", "Severity"]]
     for i, cls in enumerate(top5_pdf):
         meta_sev_raw = CLASS_METADATA.get(cls["label"], {}).get("severity", "Low")

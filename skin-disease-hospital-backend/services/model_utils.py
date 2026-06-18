@@ -111,6 +111,32 @@ SEVERITY_REMAP = {
     "Low":      "Mild",
 }
 
+SEVERITY_SORT_ORDER = {
+    "Critical": 1,
+    "Severe":   2,
+    "Moderate": 3,
+    "Mild":     4,
+    "High":     2,
+    "Low":      4,
+}
+
+
+def sort_classes_by_severity(all_classes: list[dict]) -> list[dict]:
+    """
+    Sort classes for report display by severity, then confidence descending.
+    Does not mutate the API's confidence-sorted all_classes list.
+    """
+    def sort_key(cls: dict) -> tuple:
+        label = cls["label"]
+        raw_sev = CLASS_METADATA.get(label, {}).get("severity", "Low")
+        remapped_sev = SEVERITY_REMAP.get(raw_sev, raw_sev)
+        return (SEVERITY_SORT_ORDER.get(remapped_sev, 4), -cls["confidence"])
+
+    return [
+        {**cls, "rank": i + 1}
+        for i, cls in enumerate(sorted(all_classes, key=sort_key))
+    ]
+
 _MODEL = None
 _MODEL_VERSION = "v1"
 

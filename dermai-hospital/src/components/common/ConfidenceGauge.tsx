@@ -21,7 +21,11 @@ export function ConfidenceGauge({ value, size = 120 }: Props) {
   const displayValue = useTransform(spring, (v) => v);
 
   const color =
-    percent >= 80 ? "#10B981" : percent >= 50 ? "#F59E0B" : "#DC2626";
+    percent >= 80
+      ? "hsl(var(--success))"
+      : percent >= 50
+        ? "hsl(var(--warning))"
+        : "hsl(var(--danger-critical))";
 
   useEffect(() => {
     progress.set(percent);
@@ -42,7 +46,7 @@ export function ConfidenceGauge({ value, size = 120 }: Props) {
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#1F2A44"
+          stroke="hsl(var(--border-subtle))"
           strokeWidth={8}
         />
         <motion.circle
